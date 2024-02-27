@@ -1,37 +1,35 @@
 ---
-Task: VisualQuestionAnswering
+Task: TextGeneration
 Tags:
-  - VisualQuestionAnswering
-  - Llava-7b
+  - TextGeneration
+  - Gemini-2b
 ---
 
-# Model-Llava-7b-dvc
+# Model-Gemini-2b-dvc
 
-🔥🔥🔥 Deploy [Llava-v1.5-7b](https://huggingface.co/liuhaotian/llava-v1.5-7b) model on [VDP](https://github.com/instill-ai/vdp).
+🔥🔥🔥 Deploy [Gemini-2b](https://huggingface.co/describeai/gemini-small) model on [VDP](https://github.com/instill-ai/vdp).
 
-This repo contains Llava-v1.5-7b model in transformers format managed using [DVC](https://dvc.org/). For information about available extra parameters, please refer to the documentation on [GenerationConfig](https://huggingface.co/docs/transformers/main_classes/text_generation#transformers.GenerationConfig) in the Transformer library.
+This repository contains the Gemini-2b Text Completion Generation Model in the Transformers format, managed using [DVC](https://dvc.org/).
 
 Notes:
 
-- Disk Space Requirements: 11G
-- GPU Memory Requirements: 14G
-- That some parameters is prohibited by Llava such as `frequency_penalty`
+- Disk Space Requirements: 1.7G
+- GPU Memory Requirements: 4G
+
+Following is an example of query parameters:
 
 ```
 {
     "task_inputs": [
         {
-            "visual_question_answering": {
-              "prompt": "What is unusual inside this image?",
-              "prompt_image_url": "https://artifacts.instill.tech/imgs/dog.jpg",
-              // "prompt_image_url": "https://storage.googleapis.com/public-europe-west2-c-artifacts/imgs/sample1.png",
-              "max_new_tokens": "300",
-              "temperature": "0.9",
-              "top_k": "30",
-              "random_seed": "42",
-              "extra_params": "{\"top_p\": 0.8}" 
+            "text_generation": {
+                "prompt": "The capital city of Franch is ",
+                "max_new_tokens": "300",
+                "temperature": "0.8",
+                "top_k": "50",
+                "random_seed": "42",
+                "extra_params": "{\"top_p\": 0.8, \"repetition_penalty\": 2.0}"
             }
         }
     ]
-}
-```
+}```
