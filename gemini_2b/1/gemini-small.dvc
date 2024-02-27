@@ -1,0 +1,5 @@
+outs:
+- md5: 1801347c6179d915630f034b4fcf0e50.dir
+  size: 893918320
+  nfiles: 8
+  path: gemini-small
