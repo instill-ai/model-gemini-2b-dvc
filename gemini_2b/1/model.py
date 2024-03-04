@@ -15,7 +15,7 @@ import base64
 import ray
 import torch
 import transformers
-from transformers import AutoTokenizer
+from transformers import AutoTokenizer, AutoModelForCausalLM
 from PIL import Image
 
 import numpy as np
@@ -59,12 +59,12 @@ class GeminiSmall:
 
         self.tokenizer = AutoTokenizer.from_pretrained(
             model_path, torch_dtype=torch.float16, low_cpu_mem_usage=True
-        )
-        self.pipeline = transformers.pipeline(
-            "text2text-generation",
-            model=model_path,
-            torch_dtype=torch.float16,  # Needs 26G Memory
-            device="cuda",
+            )
+
+        self.model = AutoModelForCausalLM.from_pretrained(
+            model_path,
+            device_map="cuda",
+            torch_dtype=torch.float16,
         )
 
     def ModelMetadata(self, req):
@@ -190,28 +190,44 @@ class GeminiSmall:
 
         t0 = time.time()
 
-        sequences = self.pipeline(
-            task_text_generation_chat_input.prompt,
+        input_ids = self.tokenizer(
+            task_text_generation_chat_input.prompt, 
+            return_tensors="pt"
+        ).to('cuda')
+        
+        sequences = self.model.generate(
+            **input_ids,
             do_sample=True,
             top_k=task_text_generation_chat_input.top_k,
             temperature=task_text_generation_chat_input.temperature,
             max_new_tokens=task_text_generation_chat_input.max_new_tokens,
             **task_text_generation_chat_input.extra_params,
         )
+        
         print(f"Inference time cost {time.time()-t0}s")
 
         max_output_len = 0
 
         text_outputs = []
-        for seq in sequences:
-            print("Output No Clean ----")
-            print(seq["generated_text"])
-            # print("Output Clean ----")
-            # print(seq["generated_text"][len(task_text_generation_chat_input.prompt) :])
-            print("---")
-            generated_text = seq["generated_text"].strip().encode("utf-8")
-            text_outputs.append(generated_text)
-            max_output_len = max(max_output_len, len(generated_text))
+        # for seq in sequences:
+        #     print("Output No Clean ----")
+        #     print(seq["generated_text"])
+        #     # print("Output Clean ----")
+        #     # print(seq["generated_text"][len(task_text_generation_chat_input.prompt) :])
+        #     print("---")
+        #     generated_text = seq["generated_text"].strip().encode("utf-8")
+        #     text_outputs.append(generated_text)
+        #     max_output_len = max(max_output_len, len(generated_text))
+
+        seq = self.tokenizer.decode(sequences[0], skip_special_tokens=True)
+        print("Output No Clean ----")
+        print(seq)
+        generated_text = seq[len(task_text_generation_chat_input.prompt) :].strip().encode("utf-8")
+        print("Output Clean ----")
+        print(generated_text)
+        text_outputs.append(generated_text)
+        max_output_len = max(max_output_len, len(generated_text))
+
         text_outputs_len = len(text_outputs)
         task_output = serialize_byte_tensor(np.asarray(text_outputs))
         # task_output = StandardTaskIO.parse_task_text_generation_output(sequences)
@@ -234,7 +250,7 @@ class GeminiSmall:
 
 
 deployable = InstillDeployable(
-    GeminiSmall, model_weight_or_folder_name="gemini-small/", use_gpu=True
+    GeminiSmall, model_weight_or_folder_name="gemma-2b/", use_gpu=True
 )
 
 # # Optional

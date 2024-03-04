@@ -1,0 +1,5 @@
+outs:
+- md5: 0dc571a036245d374229f3504b3aae3a.dir
+  size: 15065901788
+  nfiles: 12
+  path: gemma-2b
