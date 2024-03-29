@@ -2,14 +2,14 @@
 Task: TextGeneration
 Tags:
   - TextGeneration
-  - Gemini-2b
+  - Gemma-2b
 ---
 
 # Model-Gemini-2b-dvc
 
-🔥🔥🔥 Deploy [Gemini-2b](https://huggingface.co/describeai/gemini-small) model on [VDP](https://github.com/instill-ai/vdp).
+🔥🔥🔥 Deploy [Gemma-2b](https://huggingface.co/google/gemma-2b) model on [VDP](https://github.com/instill-ai/vdp).
 
-This repository contains the Gemini-2b Text Completion Generation Model in the Transformers format, managed using [DVC](https://dvc.org/).
+This repository contains the Gemma-2b Text Completion Generation Model in the Transformers format, managed using [DVC](https://dvc.org/).
 
 Notes:
 
