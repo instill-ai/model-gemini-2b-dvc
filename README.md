@@ -18,6 +18,24 @@ Notes:
 
 Following is an example of query parameters:
 
+**Create Model**
+
+```json
+{
+    "id": "gemma-2b-gpu-7",
+    "description": "test containerized gemma 2b gpu model.",
+    "model_definition": "model-definitions/container",
+    "visibility": "VISIBILITY_PUBLIC",
+    "region": "REGION_GCP_EUROPE_WEST_4",
+    "hardware": "GPU",
+    "configuration": {
+        "task": "TEXT_GENERATION"
+    }
+}
+```
+
+**Inference model**
+
 ```
 {
     "task_inputs": [

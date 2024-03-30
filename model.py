@@ -6,27 +6,15 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 # TORCH_GPU_DEVICE_ID = 0
 # os.environ["CUDA_VISIBLE_DEVICES"] = f"{TORCH_GPU_DEVICE_ID}"
 
-
-import io
 import time
-import requests
 import random
-import base64
-import ray
 import torch
-import transformers
 from transformers import AutoTokenizer, AutoModelForCausalLM
-from PIL import Image
 
 import numpy as np
 
 from instill.helpers.const import DataType, TextGenerationChatInput
-from instill.helpers.ray_io import (
-    serialize_byte_tensor,
-    deserialize_bytes_tensor,
-    StandardTaskIO,
-)
-
+from instill.helpers.ray_io import StandardTaskIO, serialize_byte_tensor
 from instill.helpers.ray_config import instill_deployment, InstillDeployable
 from instill.helpers import (
     construct_infer_response,
@@ -43,29 +31,43 @@ from instill.helpers import (
 
 
 @instill_deployment
-class GeminiSmall:
-    def __init__(self, model_path: str):
-        self.application_name = "_".join(model_path.split("/")[3:5])
-        self.deployement_name = model_path.split("/")[4]
-        print(f"application_name: {self.application_name}")
-        print(f"deployement_name: {self.deployement_name}")
+class Gemma2b:
+    def __init__(self):
         print(f"torch version: {torch.__version__}")
-
         print(f"torch.cuda.is_available() : {torch.cuda.is_available()}")
         print(f"torch.cuda.device_count() : {torch.cuda.device_count()}")
         # print(f"torch.cuda.current_device() : {torch.cuda.current_device()}")
         # print(f"torch.cuda.device(0) : {torch.cuda.device(0)}")
         # print(f"torch.cuda.get_device_name(0) : {torch.cuda.get_device_name(0)}")
 
-        self.tokenizer = AutoTokenizer.from_pretrained(
-            model_path, torch_dtype=torch.float16, low_cpu_mem_usage=True
-            )
+        # https://huggingface.co/google/gemma-2b
+        # Download through huggingface
 
+        ACCESS_TOKEN = "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"
+
+        self.tokenizer = AutoTokenizer.from_pretrained(
+            "google/gemma-2b", 
+            torch_dtype=torch.float16, 
+            low_cpu_mem_usage=True,
+            token=ACCESS_TOKEN
+        )
         self.model = AutoModelForCausalLM.from_pretrained(
-            model_path,
+            "google/gemma-2b",
             device_map="cuda",
             torch_dtype=torch.float16,
+            token=ACCESS_TOKEN
         )
+
+        # Dyprecated: Predownload
+        # self.tokenizer = AutoTokenizer.from_pretrained(
+        #     model_path, torch_dtype=torch.float16, low_cpu_mem_usage=True
+        #     )
+
+        # self.model = AutoModelForCausalLM.from_pretrained(
+        #     model_path,
+        #     device_map="cuda",
+        #     torch_dtype=torch.float16,
+        # )
 
     def ModelMetadata(self, req):
         resp = construct_metadata_response(
@@ -247,12 +249,13 @@ class GeminiSmall:
             ],
             raw_outputs=[task_output],
         )
+        
 
-
-deployable = InstillDeployable(
-    GeminiSmall, model_weight_or_folder_name="gemma-2b/", use_gpu=True
+entrypoint = (
+    # https://github.com/instill-ai/python-sdk/blob/main/samples/tinyllama-gpu/model.py
+    InstillDeployable(Gemma2b)
+    .update_max_replicas(4)
+    .update_min_replicas(1)
+    .update_num_gpus(0.35)
+    .get_deployment_handle()
 )
-
-# # Optional
-# deployable.update_max_replicas(2)
-# deployable.update_min_replicas(0)
