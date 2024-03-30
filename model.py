@@ -256,6 +256,6 @@ entrypoint = (
     InstillDeployable(Gemma2b)
     .update_max_replicas(4)
     .update_min_replicas(1)
-    .update_num_gpus(0.35)
+    .update_num_gpus(0.125) # 5G/40G
     .get_deployment_handle()
 )

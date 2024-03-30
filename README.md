@@ -22,7 +22,7 @@ Following is an example of query parameters:
 
 ```json
 {
-    "id": "gemma-2b-gpu-7",
+    "id": "gemma-2b-gpu",
     "description": "test containerized gemma 2b gpu model.",
     "model_definition": "model-definitions/container",
     "visibility": "VISIBILITY_PUBLIC",
